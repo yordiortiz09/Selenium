@@ -1,0 +1,35 @@
+{
+    
+        "sites": [
+        {
+            "name": "Target",
+            "url": "https://www.target.com",
+            "search_icon": {"by": "CSS_SELECTOR", "value": "button.SearchInputButton-sc-1opoijs-0"},
+            "search_box": {"by": "CSS_SELECTOR", "value": "input.SearchInput-sc-1opoijs-1"},
+            "search_term": "blender",
+            "products_wrapper": {"by": "CSS_SELECTOR", "value": "div.h-padding-h-tight"},
+            "product_name": {"by": "CSS_SELECTOR", "value": "a.Link-sc-1khjl8b-0"},
+            "product_price": {"by": "CSS_SELECTOR", "value": "span.h-text-bs"}
+        },
+        {
+            "name": "Amazon Books",
+            "url": "https://www.amazon.com/books",
+            "search_icon": {"by": "CSS_SELECTOR", "value": "input.nav-input"},
+            "search_box": {"by": "ID", "value": "twotabsearchtextbox"},
+            "search_term": "Harry Potter",
+            "products_wrapper": {"by": "CSS_SELECTOR", "value": "div.s-main-slot"},
+            "product_name": {"by": "CSS_SELECTOR", "value": "span.a-size-medium.a-color-base.a-text-normal"},
+            "product_price": {"by": "CSS_SELECTOR", "value": "span.a-price-whole"}
+        },
+        {
+            "name": "Nike",
+            "url": "https://www.nike.com",
+            "search_icon": {"by": "ID", "value": "nav-search-icon"},
+            "search_box": {"by": "ID", "value": "gn-search-input"},
+            "search_term": "Nike Air Force 1",
+            "products_wrapper": {"by": "CSS_SELECTOR", "value": "div.product-grid"},
+            "product_name": {"by": "CSS_SELECTOR", "value": "div.product-card__title"},
+            "product_price": {"by": "CSS_SELECTOR", "value": "div.product-price"}
+        }
+    ]
+}
