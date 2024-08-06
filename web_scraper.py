@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-from actions import handle_click, handle_extract, handle_scroll, handle_send_keys, handle_wait
+from actions import handle_click, handle_extract, handle_extract_table, handle_scroll, handle_send_keys, handle_wait
 
 class WebScraper:
     def __init__(self, config_file):
@@ -42,6 +42,8 @@ class WebScraper:
                     handle_scroll(self.driver, self.wait, action, site['name'])
                 elif action_type == 'extract':
                     handle_extract(self.driver, self.wait, action, site['name'])
+                elif action_type == 'extract_table':
+                    handle_extract_table(self.driver, self.wait, action, site['name'])
 
     def quit(self):
         if self.driver:

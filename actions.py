@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
+from bs4 import BeautifulSoup
 
 def handle_click(driver, wait, action, site_name):
     try:
@@ -36,6 +37,33 @@ def handle_extract(driver, wait, action, site_name):
         save_to_files(extracted_data, site_name)
     except Exception as e:
         print(f"Error extracting data in {site_name}: {e}")
+
+def handle_extract_table(driver, wait, action, site_name):
+    try:
+        time.sleep(5)
+        html_content = driver.page_source
+        soup = BeautifulSoup(html_content, 'html.parser')
+        table = soup.select_one(action['selector']['value'])
+        rows = table.find_all('tr')
+
+        extracted_data = []
+        for row in rows[1:]:
+            cells = row.find_all('td')
+            if cells:
+                data = {}
+                for field in action['fields']:
+                    try:
+                        cell = cells[action['fields'].index(field)]
+                        data[field['name']] = cell.get_text(strip=True)
+                    except IndexError:
+                        data[field['name']] = ''
+                if any(data.values()):
+                    extracted_data.append(data)
+                    print(f"Extracted data: {data}")
+
+        save_to_files(extracted_data, site_name)
+    except Exception as e:
+        print(f"Error extracting table data in {site_name}: {e}")
 
 def handle_scroll(driver, wait, action, site_name):
     try:
@@ -79,13 +107,13 @@ def save_to_files(data, description):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     
-    # Crear el DataFrame
     df = pd.DataFrame(data)
 
-    # Renombrar las columnas a español
     df.rename(columns={
         'name': 'Nombre',
-        'price': 'Precio'
+        'price': 'Precio',
+        'Language': 'Idioma',
+        'Speakers': 'Hablantes'
     }, inplace=True)
 
     excel_file = os.path.join(output_dir, f'{description}.xlsx')
@@ -101,7 +129,24 @@ def save_to_files(data, description):
         (max_row, max_col) = df.shape
         cell_range = f'A1:{chr(65 + max_col - 1)}{max_row + 1}'
 
-        worksheet.add_table(cell_range, {'columns': [{'header': col} for col in df.columns]})
+        worksheet.add_table(cell_range, {
+            'columns': [{'header': col} for col in df.columns],
+            'style': 'Table Style Medium 2'
+        })
+
+        for i, col in enumerate(df.columns):
+            max_width = df[col].astype(str).map(len).max()
+            worksheet.set_column(i, i, max(max_width, len(col)) + 2)
+
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D9EAD3',
+            'border': 1})
+
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num, value, header_format)
 
     df.to_csv(csv_file, index=False)
 

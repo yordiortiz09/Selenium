@@ -1,5 +1,42 @@
 {
     "sites": [
+        
+        {
+            "name": "Wikipedia_Languages",
+            "url": "https://en.wikipedia.org/wiki/List_of_languages_by_number_of_native_speakers",
+            "actions": [
+                {
+                    "type": "wait_for_element",
+                    "selector": {
+                        "by": "CSS_SELECTOR",
+                        "value": "table.wikitable"
+                    }
+                },
+                {
+                    "type": "extract_table",
+                    "selector": {
+                        "by": "CSS_SELECTOR",
+                        "value": "table.wikitable"
+                    },
+                    "fields": [
+                        {
+                            "name": "Language",
+                            "selector": {
+                                "by": "CSS_SELECTOR",
+                                "value": "td:nth-child(2)"
+                            }
+                        },
+                        {
+                            "name": "Speakers",
+                            "selector": {
+                                "by": "CSS_SELECTOR",
+                                "value": "td:nth-child(3)"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
         {
             "name": "Amazon",
             "url": "https://www.amazon.com/computer",
