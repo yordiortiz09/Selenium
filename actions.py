@@ -131,7 +131,8 @@ def save_to_files(data, description):
 
         worksheet.add_table(cell_range, {
             'columns': [{'header': col} for col in df.columns],
-            'style': 'Table Style Medium 2'
+            'style': 'Table Style Medium 2',
+            'autofilter': False
         })
 
         for i, col in enumerate(df.columns):
@@ -142,7 +143,8 @@ def save_to_files(data, description):
             'bold': True,
             'text_wrap': True,
             'valign': 'top',
-            'fg_color': '#D9EAD3',
+            'fg_color': '#D0E0E3',  
+            'font_color': 'black',
             'border': 1})
 
         for col_num, value in enumerate(df.columns.values):
