@@ -5,7 +5,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup 
+from selenium.webdriver.support.ui import Select
+import unicodedata
+
 
 def handle_click(driver, wait, action, site_name):
     try:
@@ -15,6 +18,26 @@ def handle_click(driver, wait, action, site_name):
     except Exception as e:
         print(f"Error clicking on {site_name}: {e}")
 
+
+def normalize_text(text):
+    return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
+
+def handle_select_option(driver, wait, action, site_name):
+    try:
+        element = wait.until(EC.presence_of_element_located((getattr(By, action['selector']['by'].upper()), action['selector']['value'])))
+        select = Select(element)
+
+        normalized_value = normalize_text("Ingeniería Electrónica")
+
+        for option in select.options:
+            if normalize_text(option.text) == normalized_value:
+                select.select_by_visible_text(option.text)
+                break
+
+        print(f"Option 'Ingeniería Electrónica' selected in {site_name}.")
+    except Exception as e:
+        print(f"Error selecting option in {site_name}: {e}")
+
 def handle_extract(driver, wait, action, site_name):
     try:
         time.sleep(5)
@@ -22,21 +45,47 @@ def handle_extract(driver, wait, action, site_name):
         print(f"Total rows found in {site_name}: {len(rows)}")
 
         extracted_data = []
-        for row in rows:
+        for index, row in enumerate(rows):
             data = {}
+            print(f"Processing row {index + 1}/{len(rows)}")
             for field in action['fields']:
                 try:
                     element = row.find_element(by=getattr(By, field['selector']['by'].upper()), value=field['selector']['value'])
-                    data[field['name']] = element.text.strip() if field['name'] != 'link' else element.get_attribute('href').strip()
+                    if element:
+                        print(f"Element found for field '{field['name']}': {element.get_attribute('outerHTML')}")
+                        
+                        # Extraer y limpiar el texto correctamente
+                        text = element.get_attribute('innerText').strip()
+                        text = ' '.join(text.split())  # Reemplazar múltiples espacios y saltos de línea con un solo espacio
+
+                        if text:
+                            data[field['name']] = text
+                        else:
+                            print(f"No meaningful text found in field '{field['name']}', setting as empty.")
+                            data[field['name']] = ''
+                    else:
+                        print(f"Field '{field['name']}' not found, setting as empty.")
+                        data[field['name']] = ''
                 except NoSuchElementException:
+                    print(f"Field '{field['name']}' not found in row, setting as empty.")
+                    data[field['name']] = ''
+                except Exception as e:
+                    print(f"Error extracting '{field['name']}' in {site_name}: {e}")
                     data[field['name']] = ''
             if any(data.values()):
                 extracted_data.append(data)
-                print(f"Extracted data: {data}")
-
-        save_to_files(extracted_data, site_name)
+                print(f"Extracted data for row {index + 1}: {data}")
+            else:
+                print(f"No data found in row {index + 1}")
+        
+        if extracted_data:
+            save_to_files(extracted_data, site_name)
+        else:
+            print("No data extracted, skipping file save.")
     except Exception as e:
         print(f"Error extracting data in {site_name}: {e}")
+
+
 
 def handle_extract_table(driver, wait, action, site_name):
     try:
@@ -109,13 +158,6 @@ def save_to_files(data, description):
     
     df = pd.DataFrame(data)
 
-    df.rename(columns={
-        'name': 'Nombre',
-        'price': 'Precio',
-        'Language': 'Idioma',
-        'Speakers': 'Hablantes'
-    }, inplace=True)
-
     excel_file = os.path.join(output_dir, f'{description}.xlsx')
     csv_file = os.path.join(output_dir, f'{description}.csv')
     excel_file = excel_file.replace(" ", "_")
@@ -154,3 +196,4 @@ def save_to_files(data, description):
 
     print(f'Extracted {len(data)} items.')
     print(f'Data saved in "{excel_file}" and "{csv_file}".')
+
