@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-from actions import handle_click, handle_extract, handle_extract_table, handle_scroll, handle_send_keys, handle_wait
+from actions import handle_click, handle_extract, handle_extract_table, handle_scroll, handle_send_keys, handle_wait, handle_select_option
 
 class WebScraper:
     def __init__(self, config_file):
@@ -28,22 +28,24 @@ class WebScraper:
         self.wait = WebDriverWait(self.driver, 20)
 
     def execute_actions(self):
-        for site in self.config['sites']:
-            self.driver.get(site['url'])
-            for action in site['actions']:
-                action_type = action['type']
-                if action_type == 'click':
-                    handle_click(self.driver, self.wait, action, site['name'])
-                elif action_type == 'wait_for_element':
-                    handle_wait(self.driver, self.wait, action, site['name'])
-                elif action_type == 'send_keys':
-                    handle_send_keys(self.driver, self.wait, action, site['name'])
-                elif action_type == 'scroll':
-                    handle_scroll(self.driver, self.wait, action, site['name'])
-                elif action_type == 'extract':
-                    handle_extract(self.driver, self.wait, action, site['name'])
-                elif action_type == 'extract_table':
-                    handle_extract_table(self.driver, self.wait, action, site['name'])
+     for site in self.config['sites']:
+        self.driver.get(site['url'])
+        for action in site['actions']:
+            action_type = action['type']
+            if action_type == 'click':
+                handle_click(self.driver, self.wait, action, site['name'])
+            elif action_type == 'wait_for_element':
+                handle_wait(self.driver, self.wait, action, site['name'])
+            elif action_type == 'send_keys':
+                handle_send_keys(self.driver, self.wait, action, site['name'])
+            elif action_type == 'scroll':
+                handle_scroll(self.driver, self.wait, action, site['name'])
+            elif action_type == 'extract':
+                handle_extract(self.driver, self.wait, action, site['name'])
+            elif action_type == 'extract_table':
+                handle_extract_table(self.driver, self.wait, action, site['name'])
+            elif action_type == 'select_option':
+                handle_select_option(self.driver, self.wait, action, site['name'])
 
     def quit(self):
         if self.driver:

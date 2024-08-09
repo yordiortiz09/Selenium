@@ -1,152 +1,79 @@
 {
     "sites": [
-        
         {
-            "name": "Wikipedia_Languages",
-            "url": "https://en.wikipedia.org/wiki/List_of_languages_by_number_of_native_speakers",
+            "name": "Asignaturas",
+            "url": "https://www.tecnm.mx/?vista=Asignaturas_test",
             "actions": [
                 {
                     "type": "wait_for_element",
                     "selector": {
                         "by": "CSS_SELECTOR",
-                        "value": "table.wikitable"
+                        "value": "select[name='programa_educativo']"
                     }
                 },
                 {
-                    "type": "extract_table",
+                    "type": "select_option",
                     "selector": {
                         "by": "CSS_SELECTOR",
-                        "value": "table.wikitable"
+                        "value": "select[name='programa_educativo']"
                     },
-                    "fields": [
-                        {
-                            "name": "Language",
-                            "selector": {
-                                "by": "CSS_SELECTOR",
-                                "value": "td:nth-child(2)"
-                            }
-                        },
-                        {
-                            "name": "Speakers",
-                            "selector": {
-                                "by": "CSS_SELECTOR",
-                                "value": "td:nth-child(3)"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Amazon",
-            "url": "https://www.amazon.com/computer",
-            "actions": [
-                {
-                    "type": "click",
-                    "selector": {
-                        "by": "CSS_SELECTOR",
-                        "value": "input.nav-input"
-                    }
-                },
-                {
-                    "type": "send_keys",
-                    "selector": {
-                        "by": "ID",
-                        "value": "twotabsearchtextbox"
-                    },
-                    "value": "Laptop"
+                    "select_by": "visible_text",
+                    "value": "Ingeniería Electrónica"
                 },
                 {
                     "type": "wait_for_element",
                     "selector": {
                         "by": "CSS_SELECTOR",
-                        "value": "div.s-main-slot"
-                    }
-                },
-                {
-                    "type": "scroll",
-                    "settings": {
-                        "repetitions": 5,
-                        "wait_time": 3
+                        "value": "div.row.mx-auto.bg-tecnm.text-white.text-center.align-items-center.py-auto.font-weight-bold"
                     }
                 },
                 {
                     "type": "extract",
                     "selector": {
                         "by": "CSS_SELECTOR",
-                        "value": "div.s-main-slot div.s-result-item"
+                        "value": "div.row.mx-auto.bg-tecnm.text-white.text-center.align-items-center.py-auto.font-weight-bold"
                     },
                     "fields": [
                         {
-                            "name": "name",
+                            "name": "Asignatura",
                             "selector": {
                                 "by": "CSS_SELECTOR",
-                                "value": "span.a-size-medium.a-color-base.a-text-normal"
+                                "value": "div:nth-child(2)"
                             }
                         },
                         {
-                            "name": "price",
+                            "name": "Tema",
                             "selector": {
                                 "by": "CSS_SELECTOR",
-                                "value": "span.a-price-whole"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Nike",
-            "url": "https://www.nike.com",
-            "actions": [
-                {
-                    "type": "click",
-                    "selector": {
-                        "by": "CSS_SELECTOR",
-                        "value": "button.search-start-btn"
-                    }
-                },
-                {
-                    "type": "send_keys",
-                    "selector": {
-                        "by": "ID",
-                        "value": "gn-search-input"
-                    },
-                    "value": "Nike Air Force 1"
-                },
-                {
-                    "type": "wait_for_element",
-                    "selector": {
-                        "by": "CSS_SELECTOR",
-                        "value": "div.product-grid"
-                    }
-                },
-                {
-                    "type": "scroll",
-                    "settings": {
-                        "repetitions": 5,
-                        "wait_time": 3
-                    }
-                },
-                {
-                    "type": "extract",
-                    "selector": {
-                        "by": "CSS_SELECTOR",
-                        "value": "div.product-grid div.product-card"
-                    },
-                    "fields": [
-                        {
-                            "name": "name",
-                            "selector": {
-                                "by": "CSS_SELECTOR",
-                                "value": "div.product-card__title"
+                                "value": "div:nth-child(3)"
                             }
                         },
                         {
-                            "name": "price",
+                            "name": "Sitio",
                             "selector": {
                                 "by": "CSS_SELECTOR",
-                                "value": "div.product-price.is--current-price"
+                                "value": "div:nth-child(4)"
+                            }
+                        },
+                        {
+                            "name": "Enlace Directo",
+                            "selector": {
+                                "by": "CSS_SELECTOR",
+                                "value": "div:nth-child(5)"  
+                            }
+                        },
+                        {
+                            "name": "Alcance",
+                            "selector": {
+                                "by": "CSS_SELECTOR",
+                                "value": "div:nth-child(6)"
+                            }
+                        },
+                        {
+                            "name": "Observaciones",
+                            "selector": {
+                                "by": "CSS_SELECTOR",
+                                "value": "div:nth-child(7)"
                             }
                         }
                     ]
