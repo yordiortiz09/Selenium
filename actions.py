@@ -18,7 +18,6 @@ def handle_click(driver, wait, action, site_name):
     except Exception as e:
         print(f"Error clicking on {site_name}: {e}")
 
-
 def normalize_text(text):
     return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
 
@@ -27,14 +26,14 @@ def handle_select_option(driver, wait, action, site_name):
         element = wait.until(EC.presence_of_element_located((getattr(By, action['selector']['by'].upper()), action['selector']['value'])))
         select = Select(element)
 
-        normalized_value = normalize_text("Ingeniería Electrónica")
+        normalized_value = normalize_text(action['value'])
 
         for option in select.options:
             if normalize_text(option.text) == normalized_value:
                 select.select_by_visible_text(option.text)
                 break
 
-        print(f"Option 'Ingeniería Electrónica' selected in {site_name}.")
+        print(f"Option '{action['value']}' selected in {site_name}.")
     except Exception as e:
         print(f"Error selecting option in {site_name}: {e}")
 
@@ -83,34 +82,73 @@ def handle_extract(driver, wait, action, site_name):
     except Exception as e:
         print(f"Error extracting data in {site_name}: {e}")
 
-
-
-def handle_extract_table(driver, wait, action, site_name):
-    try:
-        time.sleep(5)
-        html_content = driver.page_source
-        soup = BeautifulSoup(html_content, 'html.parser')
-        table = soup.select_one(action['selector']['value'])
-        rows = table.find_all('tr')
-
-        extracted_data = []
-        for row in rows[1:]:
-            cells = row.find_all('td')
-            if cells:
-                data = {}
-                for field in action['fields']:
-                    try:
-                        cell = cells[action['fields'].index(field)]
-                        data[field['name']] = cell.get_text(strip=True)
-                    except IndexError:
+def extract_data_from_page(driver, wait, action, site_name):
+    rows = driver.find_elements(By.CSS_SELECTOR, action['selector']['value'])
+    print(f"Total rows found in {site_name}: {len(rows)}")
+    extracted_data = []
+    for index, row in enumerate(rows):
+        data = {}
+        print(f"Processing row {index + 1}/{len(rows)}")
+        for field in action['fields']:
+            try:
+                element = row.find_element(by=getattr(By, field['selector']['by'].upper()), value=field['selector']['value'])
+                if element:
+                    text = element.get_attribute('innerText').strip()
+                    text = ' '.join(text.split())
+                    if text:
+                        data[field['name']] = text
+                    else:
+                        print(f"No meaningful text found in field '{field['name']}', setting as empty.")
                         data[field['name']] = ''
-                if any(data.values()):
-                    extracted_data.append(data)
-                    print(f"Extracted data: {data}")
+                else:
+                    print(f"Field '{field['name']}' not found, setting as empty.")
+                    data[field['name']] = ''
+            except NoSuchElementException:
+                print(f"Field '{field['name']}' not found in row, setting as empty.")
+                data[field['name']] = ''
+            except Exception as e:
+                print(f"Error extracting '{field['name']}' in {site_name}: {e}")
+                data[field['name']] = ''
+        if any(data.values()):
+            extracted_data.append(data)
+            print(f"Extracted data for row {index + 1}: {data}")
+        else:
+            print(f"No data found in row {index + 1}")
+    
+    return extracted_data
 
-        save_to_files(extracted_data, site_name)
-    except Exception as e:
-        print(f"Error extracting table data in {site_name}: {e}")
+def handle_pagination(driver, wait, action, site_name, max_pages=2):
+    all_data = []
+    page_number = 1
+
+    while page_number <= max_pages:
+        print(f"Extracting data from page {page_number}...")
+        page_data = extract_data_from_page(driver, wait, action, site_name)
+        all_data.extend(page_data)
+
+        try:
+            pagination_container = driver.find_element(By.ID, 'pagination_controls')
+            next_page_link = pagination_container.find_element(By.LINK_TEXT, 'Siguiente')
+            
+            if next_page_link and page_number < max_pages:
+                print(f"Navigating to page {page_number + 1}...")
+                next_page_link.click()
+                page_number += 1
+                time.sleep(5)  
+            else:
+                print(f"Reached the page limit ({max_pages}). Stopping pagination.")
+                break
+        except NoSuchElementException:
+            print("No more pages. Finished extracting data.")
+            break
+
+    if all_data:
+        save_to_files(all_data, site_name)
+    else:
+        print("No data extracted from any page, skipping file save.")
+
+
+
 
 def handle_scroll(driver, wait, action, site_name):
     try:
@@ -139,6 +177,56 @@ def handle_send_keys(driver, wait, action, site_name):
         element.send_keys(Keys.ENTER)
     except Exception as e:
         print(f"Error sending keys in {site_name}: {e}")
+
+def handle_extract_table(driver, wait, action, site_name):
+    try:
+        time.sleep(5)
+        html_content = driver.page_source
+        soup = BeautifulSoup(html_content, 'html.parser')
+        table = soup.select_one(action['selector']['value'])
+        rows = table.find_all('tr')
+
+        extracted_data = []
+        for row in rows[1:]:
+            cells = row.find_all('td')
+            if cells:
+                data = {}
+                for field in action['fields']:
+                    try:
+                        cell = cells[action['fields'].index(field)]
+                        data[field['name']] = cell.get_text(strip=True)
+                    except IndexError:
+                        data[field['name']] = ''
+                if any(data.values()):
+                    extracted_data.append(data)
+                    print(f"Extracted data: {data}")
+
+        save_to_files(extracted_data, site_name)
+    except Exception as e:
+        print(f"Error extracting table data in {site_name}: {e}")
+        
+def handle_extract(driver, wait, action, site_name):
+    try:
+        time.sleep(5)
+        rows = driver.find_elements(By.CSS_SELECTOR, action['selector']['value'])
+        print(f"Total rows found in {site_name}: {len(rows)}")
+
+        extracted_data = []
+        for row in rows:
+            data = {}
+            for field in action['fields']:
+                try:
+                    element = row.find_element(by=getattr(By, field['selector']['by'].upper()), value=field['selector']['value'])
+                    data[field['name']] = element.text.strip() if field['name'] != 'link' else element.get_attribute('href').strip()
+                except NoSuchElementException:
+                    data[field['name']] = ''
+            if any(data.values()):
+                extracted_data.append(data)
+                print(f"Extracted data: {data}")
+
+        save_to_files(extracted_data, site_name)
+    except Exception as e:
+        print(f"Error extracting data in {site_name}: {e}")
 
 def handle_wait(driver, wait, action, site_name):
     try:
@@ -194,4 +282,3 @@ def save_to_files(data, description):
 
     print(f'Extracted {len(data)} items.')
     print(f'Data saved in "{excel_file}" and "{csv_file}".')
-

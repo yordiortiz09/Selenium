@@ -8,32 +8,23 @@
                     "type": "wait_for_element",
                     "selector": {
                         "by": "CSS_SELECTOR",
-                        "value": "select[name='programa_educativo']"
+                        "value": "div.row.mx-auto.border.border-primary.d-flex.mb-3.mb-xl-0.d-flex"
                     }
                 },
                 {
-                    "type": "select_option",
+                    "type": "extract_data",
                     "selector": {
                         "by": "CSS_SELECTOR",
-                        "value": "select[name='programa_educativo']"
-                    },
-                    "select_by": "visible_text",
-                    "value": "Ingeniería Electrónica"
-                },
-                {
-                    "type": "wait_for_element",
-                    "selector": {
-                        "by": "CSS_SELECTOR",
-                        "value": "div.row.mx-auto.bg-tecnm.text-white.text-center.align-items-center.py-auto.font-weight-bold"
-                    }
-                },
-                {
-                    "type": "extract",
-                    "selector": {
-                        "by": "CSS_SELECTOR",
-                        "value": "div.row.mx-auto.bg-tecnm.text-white.text-center.align-items-center.py-auto.font-weight-bold"
+                        "value": "div.row.mx-auto.border.border-primary.d-flex.mb-3.mb-xl-0.d-flex"
                     },
                     "fields": [
+                        {
+                            "name": "Programa Educativo",
+                            "selector": {
+                                "by": "CSS_SELECTOR",
+                                "value": "div:nth-child(1)"
+                            }
+                        },
                         {
                             "name": "Asignatura",
                             "selector": {
@@ -59,7 +50,7 @@
                             "name": "Enlace Directo",
                             "selector": {
                                 "by": "CSS_SELECTOR",
-                                "value": "div:nth-child(5)"  
+                                "value": "div:nth-child(5) a"
                             }
                         },
                         {
