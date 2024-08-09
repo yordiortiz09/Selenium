@@ -40,7 +40,7 @@ def handle_select_option(driver, wait, action, site_name):
 
 def handle_extract(driver, wait, action, site_name):
     try:
-        time.sleep(5)
+        time.sleep(10) 
         rows = driver.find_elements(By.CSS_SELECTOR, action['selector']['value'])
         print(f"Total rows found in {site_name}: {len(rows)}")
 
@@ -53,10 +53,8 @@ def handle_extract(driver, wait, action, site_name):
                     element = row.find_element(by=getattr(By, field['selector']['by'].upper()), value=field['selector']['value'])
                     if element:
                         print(f"Element found for field '{field['name']}': {element.get_attribute('outerHTML')}")
-                        
-                        # Extraer y limpiar el texto correctamente
                         text = element.get_attribute('innerText').strip()
-                        text = ' '.join(text.split())  # Reemplazar múltiples espacios y saltos de línea con un solo espacio
+                        text = ' '.join(text.split())
 
                         if text:
                             data[field['name']] = text
